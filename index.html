@@ -2,8 +2,20 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mengenal Huruf Hijaiyah - Belajar Sambil Bermain</title>
+
+    <!-- PWA & Mobile Native App Meta Tags (Android & iOS) -->
+    <meta name="theme-color" content="#FDE68A">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Huruf Hijaiyah">
+    <meta name="application-name" content="Huruf Hijaiyah">
+    <meta name="description" content="Permainan edukasi interaktif melakar 29 huruf Hijaiyah untuk kanak-kanak.">
+    <link id="pwa-manifest-link" rel="manifest" href="">
+    <link id="apple-touch-icon-link" rel="apple-touch-icon" href="">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Fredoka & Baloo 2 for playful rounded storybook typography, Noto Naskh Arabic for clear Hijaiyah letters -->
@@ -11,12 +23,24 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
+        html, body {
             font-family: 'Fredoka', sans-serif;
-            touch-action: none;
+            touch-action: manipulation;
             user-select: none;
             -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
             background-color: #FFF6D6;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+        }
+        .safe-top {
+            padding-top: max(0.5rem, env(safe-area-inset-top));
+        }
+        .safe-bottom {
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+        }
+        #tracingCanvas {
+            touch-action: none;
         }
         .font-storybook {
             font-family: 'Baloo 2', 'Fredoka', cursive, sans-serif;
@@ -111,12 +135,12 @@
         }
     </style>
 </head>
-<body class="bg-[#FFF6D6] min-h-screen flex flex-col overflow-x-hidden text-[#5C3A21]">
+<body class="bg-[#FFF6D6] min-h-[100dvh] flex flex-col overflow-x-hidden text-[#5C3A21]">
 
     <!-- ===================================================================== -->
     <!-- 1. SPLASH / MAIN TITLE SCREEN ("MUKA UTAMA")                          -->
     <!-- ===================================================================== -->
-    <section id="splash-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-between overflow-y-auto overflow-x-hidden bg-[radial-gradient(circle_at_50%_40%,#FFFDF2_0%,#FDE68A_55%,#F6C96B_100%)] p-4 sm:p-6 transition-opacity duration-500">
+    <section id="splash-screen" class="fixed inset-0 z-40 h-[100dvh] flex flex-col items-center justify-between overflow-y-auto overflow-x-hidden bg-[radial-gradient(circle_at_50%_40%,#FFFDF2_0%,#FDE68A_55%,#F6C96B_100%)] px-3 sm:px-6 safe-top safe-bottom transition-opacity duration-500">
 
         <!-- Scenic SVG Background (Clouds, Mosque, Palm Trees, Desert Hills, Books) -->
         <svg class="fixed inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMax slice">
@@ -202,40 +226,48 @@
             </g>
         </svg>
 
+        <!-- Top Action Strip on Splash Screen (Install App Button) -->
+        <div class="relative z-20 w-full max-w-5xl flex items-center justify-end pt-1">
+            <button id="btn-install-splash" class="hidden bg-[#5C3A21] hover:bg-[#432916] text-[#FFFDF7] px-3.5 py-2 rounded-full shadow-lg border-2 border-[#FFFDF7] font-bold text-xs sm:text-sm items-center gap-1.5 cursor-pointer transition transform active:scale-95">
+                <span>📲</span>
+                <span>Install App</span>
+            </button>
+        </div>
+
         <!-- Top Title Header Area -->
-        <div class="relative z-10 text-center mt-2 sm:mt-4 max-w-3xl mx-auto">
+        <div class="relative z-10 text-center mt-1 sm:mt-2 max-w-3xl mx-auto">
             <!-- Decorative Sparkles above title -->
-            <div class="flex items-center justify-center gap-3 text-[#C96A3B] text-xl sm:text-2xl font-bold mb-1">
+            <div class="flex items-center justify-center gap-2 sm:gap-3 text-[#C96A3B] text-base sm:text-2xl font-bold mb-0.5">
                 <span>✦</span>
-                <span class="text-sm sm:text-base tracking-widest uppercase text-[#8C5327] font-extrabold">Jom Belajar Mengaji</span>
+                <span class="text-xs sm:text-base tracking-widest uppercase text-[#8C5327] font-extrabold">Jom Belajar Mengaji</span>
                 <span>✦</span>
             </div>
 
             <!-- Arched Storybook Title -->
-            <h1 class="font-storybook text-4xl sm:text-6xl md:text-7xl font-extrabold leading-tight tracking-tight sticker-text select-none">
+            <h1 class="font-storybook text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight sticker-text select-none">
                 <span class="block text-[#5C3A21] transform -rotate-1">Mengenal</span>
-                <span class="block mt-1">
+                <span class="block mt-0.5 sm:mt-1">
                     <span class="text-[#D96B27]">H</span><span class="text-[#E08A2E]">u</span><span class="text-[#4F86A6]">r</span><span class="text-[#D95D5D]">u</span><span class="text-[#4D8B68]">f</span>
-                    <span class="inline-block w-2 sm:w-4"></span>
+                    <span class="inline-block w-1.5 sm:w-4"></span>
                     <span class="text-[#5C3A21]">H</span><span class="text-[#D96B27]">i</span><span class="text-[#4F86A6]">j</span><span class="text-[#D95D5D]">a</span><span class="text-[#4D8B68]">i</span><span class="text-[#E08A2E]">y</span><span class="text-[#A8383B]">a</span><span class="text-[#5C3A21]">h</span>
                 </span>
             </h1>
 
             <!-- Brown Pill Subtitle Banner -->
-            <div class="inline-flex items-center gap-2 bg-[#5C3A21] text-[#FFF8E7] px-5 sm:px-7 py-1.5 sm:py-2 rounded-full shadow-lg border-2 border-[#FFF8E7] mt-3 transform -rotate-1">
-                <span class="text-amber-300 text-sm">✿</span>
-                <span class="font-bold text-sm sm:text-lg tracking-wide">Belajar sambil bermain</span>
-                <span class="text-amber-300 text-sm">✿</span>
+            <div class="inline-flex items-center gap-2 bg-[#5C3A21] text-[#FFF8E7] px-4 sm:px-7 py-1 sm:py-2 rounded-full shadow-lg border-2 border-[#FFF8E7] mt-2 sm:mt-3 transform -rotate-1">
+                <span class="text-amber-300 text-xs sm:text-sm">✿</span>
+                <span class="font-bold text-xs sm:text-lg tracking-wide">Belajar sambil bermain</span>
+                <span class="text-amber-300 text-xs sm:text-sm">✿</span>
             </div>
         </div>
 
         <!-- Center Stage: Floating Hijaiyah Stickers + 3 Cute Muslim Children SVG Illustration -->
-        <div class="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center my-auto py-2">
+        <div class="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center my-auto py-1 sm:py-2">
 
             <!-- Floating Sticker Letters Around the Characters -->
             <!-- Tsa (Purple) Left -->
-            <div class="animate-float-slow absolute left-2 sm:left-10 top-0 sm:top-4 bg-white p-2 sm:p-3 rounded-3xl shadow-xl border-4 border-[#9B6BB3] transform -rotate-12">
-                <span class="arabic-font text-4xl sm:text-6xl font-bold text-[#8B5CF6] leading-none block px-1">ث</span>
+            <div class="animate-float-slow absolute left-1 sm:left-10 top-0 sm:top-4 bg-white p-1.5 sm:p-3 rounded-2xl sm:rounded-3xl shadow-xl border-3 sm:border-4 border-[#9B6BB3] transform -rotate-12">
+                <span class="arabic-font text-3xl sm:text-6xl font-bold text-[#8B5CF6] leading-none block px-1">ث</span>
             </div>
             <!-- Ta (Orange) Top Left-Center -->
             <div class="animate-float-delayed hidden sm:flex absolute left-28 md:left-36 -top-4 bg-white p-2.5 rounded-3xl shadow-lg border-4 border-[#F59E0B] transform rotate-6">
@@ -246,20 +278,12 @@
                 <span class="arabic-font text-4xl sm:text-5xl font-bold text-[#0284C7] leading-none block px-1">خ</span>
             </div>
             <!-- Ha (Coral Red) Right -->
-            <div class="animate-float-delayed absolute right-2 sm:right-8 top-4 sm:top-8 bg-white p-2 sm:p-3 rounded-3xl shadow-xl border-4 border-[#FB7185] transform rotate-12">
-                <span class="arabic-font text-4xl sm:text-6xl font-bold text-[#E11D48] leading-none block px-1">ح</span>
+            <div class="animate-float-delayed absolute right-1 sm:right-8 top-2 sm:top-8 bg-white p-1.5 sm:p-3 rounded-2xl sm:rounded-3xl shadow-xl border-3 sm:border-4 border-[#FB7185] transform rotate-12">
+                <span class="arabic-font text-3xl sm:text-6xl font-bold text-[#E11D48] leading-none block px-1">ح</span>
             </div>
 
             <!-- Custom Cute Storybook Vector Illustration: 3 Kids Holding Alif, Ba, Jim -->
-            <svg class="w-full max-w-[540px] sm:max-w-[620px] h-auto drop-shadow-xl" viewBox="0 0 640 310" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Soft Ground Shadow under Kids -->
-                <ellipse cx="320" cy="285" rx="265" ry="20" fill="#B8863B" opacity="0.45" />
-
-                <!-- ================= LEFT BOY (Holding Red Ba' ب) ================= -->
-                <g transform="translate(55, 45)">
-                    <!-- Body / Cream Jubah -->
-                    <path d="M55,155 C35,155 25,195 25,225 L145,225 C145,195 135,155 115,155 Z" fill="#F9F1DC" stroke="#5C3A21" stroke-width="4" />
-                    <!-- Vest / Gold Trim -->
+            <svg class="w-full max-w-[340px] sm:max-w-[520px] md:max-w-[600px] max-h-[34dvh] sm:max-h-[42dvh] h-auto drop-shadow-xl" viewBox="0 0 640 310" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M65,155 L65,225 M105,155 L105,225" stroke="#B79256" stroke-width="4" />
                     <!-- Crossed Legs -->
                     <ellipse cx="62" cy="226" rx="34" ry="13" fill="#EFE2C4" stroke="#5C3A21" stroke-width="4" />
@@ -375,15 +399,15 @@
         </div>
 
         <!-- Prominent Round Green "START HERE" Button at Bottom Center -->
-        <div class="relative z-20 mb-3 sm:mb-5 flex flex-col items-center">
-            <button id="btn-start-game" class="btn-start-pulse group relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-b from-[#34B38A] to-[#269370] border-4 border-[#5C3A21] text-[#FFFDF7] flex flex-col items-center justify-center cursor-pointer transition-transform active:scale-95">
+        <div class="relative z-20 mb-2 sm:mb-4 flex flex-col items-center">
+            <button id="btn-start-game" class="btn-start-pulse group relative w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-b from-[#34B38A] to-[#269370] border-4 border-[#5C3A21] text-[#FFFDF7] flex flex-col items-center justify-center cursor-pointer transition-transform active:scale-95">
                 <!-- Inner dashed ring -->
                 <span class="absolute inset-1.5 rounded-full border-2 border-dashed border-[#A7F3D0]/70 pointer-events-none"></span>
                 <!-- Little sparkles -->
-                <span class="text-amber-300 text-xs sm:text-sm leading-none mb-0.5">✦ ✧ ✦</span>
-                <span class="font-storybook text-xl sm:text-2xl font-extrabold leading-none tracking-wide drop-shadow">START</span>
-                <span class="font-storybook text-lg sm:text-xl font-extrabold leading-tight tracking-wider text-amber-200 drop-shadow">HERE</span>
-                <span class="text-amber-300 text-xs leading-none mt-0.5">★</span>
+                <span class="text-amber-300 text-[10px] sm:text-sm leading-none mb-0.5">✦ ✧ ✦</span>
+                <span class="font-storybook text-lg sm:text-2xl font-extrabold leading-none tracking-wide drop-shadow">START</span>
+                <span class="font-storybook text-base sm:text-xl font-extrabold leading-tight tracking-wider text-amber-200 drop-shadow">HERE</span>
+                <span class="text-amber-300 text-[10px] sm:text-xs leading-none mt-0.5">★</span>
             </button>
         </div>
     </section>
@@ -392,136 +416,141 @@
     <!-- ===================================================================== -->
     <!-- 2. MAIN TRACING GAME VIEW                                             -->
     <!-- ===================================================================== -->
-    <div id="game-screen" class="flex-1 flex flex-col min-h-screen bg-[radial-gradient(circle_at_top,#FFFDF5_0%,#FEF3C7_60%,#FDE68A_100%)]">
+    <div id="game-screen" class="flex-1 flex flex-col min-h-[100dvh] lg:h-[100dvh] lg:overflow-hidden bg-[radial-gradient(circle_at_top,#FFFDF5_0%,#FEF3C7_60%,#FDE68A_100%)] safe-bottom">
 
         <!-- Top Header Bar -->
-        <header class="bg-white/90 backdrop-blur-md shadow-md px-3 sm:px-6 py-2.5 flex items-center justify-between z-20 border-b-4 border-[#E8C587]">
-            <div class="flex items-center gap-2 sm:gap-3">
+        <header class="bg-white/90 backdrop-blur-md shadow-md px-2.5 sm:px-6 py-2 flex items-center justify-between z-20 border-b-4 border-[#E8C587] safe-top shrink-0">
+            <div class="flex items-center gap-1.5 sm:gap-3">
                 <!-- Home / Muka Utama Button -->
-                <button id="btn-home" class="bg-[#8C5327] hover:bg-[#6E3F1C] text-[#FFFDF7] p-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Muka Utama">
-                    <i data-lucide="home" class="w-5 h-5"></i>
+                <button id="btn-home" class="bg-[#8C5327] hover:bg-[#6E3F1C] text-[#FFFDF7] p-2 sm:p-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Muka Utama">
+                    <i data-lucide="home" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     <span class="hidden md:inline text-sm">Utama</span>
                 </button>
 
                 <!-- 29 Letters Grid Menu Button -->
-                <button id="btn-menu" class="bg-[#D96B27] hover:bg-[#BF5819] text-white px-3 py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-2 font-bold cursor-pointer">
-                    <i data-lucide="grid" class="w-5 h-5"></i>
+                <button id="btn-menu" class="bg-[#D96B27] hover:bg-[#BF5819] text-white px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer">
+                    <i data-lucide="grid" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     <span class="hidden sm:inline text-sm">Pilih Huruf</span>
                 </button>
 
                 <!-- Stars Counter -->
-                <div class="flex items-center gap-1.5 bg-amber-100 px-3 py-1.5 rounded-2xl border-2 border-amber-400 shadow-inner">
-                    <i data-lucide="star" class="w-5 h-5 text-amber-500 fill-amber-400 animate-pulse"></i>
-                    <span id="total-stars" class="font-extrabold text-[#5C3A21] text-base sm:text-lg">0</span>
-                    <span class="text-xs text-amber-700 font-bold">/ 29</span>
+                <div class="flex items-center gap-1 sm:gap-1.5 bg-amber-100 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-2xl border-2 border-amber-400 shadow-inner">
+                    <i data-lucide="star" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 fill-amber-400 animate-pulse"></i>
+                    <span id="total-stars" class="font-extrabold text-[#5C3A21] text-sm sm:text-lg">0</span>
+                    <span class="text-[11px] sm:text-xs text-amber-700 font-bold">/ 29</span>
                 </div>
             </div>
 
             <!-- Center Title & Progress -->
-            <div class="text-center hidden sm:block">
+            <div class="text-center hidden md:block">
                 <h2 class="font-storybook text-lg sm:text-xl font-extrabold text-[#5C3A21]">
                     ✨ Mengenal Huruf Hijaiyah ✨
                 </h2>
                 <p id="header-progress" class="text-xs font-bold text-[#8C5327]">Huruf 1 dari 29</p>
             </div>
 
-            <!-- Right Controls: Mobile How-to-Play Toggle & Audio Pronunciation -->
-            <div class="flex items-center gap-2">
-                <button id="btn-toggle-guide-mobile" class="lg:hidden bg-sky-500 hover:bg-sky-600 text-white p-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1 font-bold cursor-pointer" title="Cara Bermain">
-                    <i data-lucide="help-circle" class="w-5 h-5"></i>
-                    <span class="text-xs hidden xs:inline">Cara Main</span>
+            <!-- Right Controls: Install App, Mobile How-to-Play Toggle & Audio Pronunciation -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btn-install-header" class="hidden bg-amber-400 hover:bg-amber-500 text-[#5C3A21] px-2.5 py-2 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition items-center gap-1 font-extrabold cursor-pointer text-xs sm:text-sm" title="Pasang Aplikasi ke Telefon">
+                    <span>📲</span>
+                    <span class="hidden sm:inline">Install</span>
                 </button>
 
-                <button id="btn-sound" class="bg-[#34B38A] hover:bg-[#269370] text-white px-3.5 py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Dengar Sebutan Huruf">
-                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                <button id="btn-toggle-guide-mobile" class="md:hidden bg-sky-500 hover:bg-sky-600 text-white p-2 sm:p-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1 font-bold cursor-pointer" title="Cara Bermain">
+                    <i data-lucide="help-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                    <span class="text-xs hidden xs:inline">Panduan</span>
+                </button>
+
+                <button id="btn-sound" class="bg-[#34B38A] hover:bg-[#269370] text-white px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Dengar Sebutan Huruf">
+                    <i data-lucide="volume-2" class="w-4 h-4 sm:w-5 sm:h-5"></i>
                     <span class="hidden sm:inline text-sm">Bunyi</span>
                 </button>
             </div>
         </header>
 
-        <!-- Main Workspace: 3-Column Responsive Layout (Left: Cara Bermain + Info, Center: Canvas, Right: Brush Colors) -->
-        <main class="flex-1 flex flex-col lg:flex-row items-center justify-center p-3 sm:p-5 gap-4 max-w-7xl mx-auto w-full relative">
+        <!-- Main Workspace: Responsive Flex/Grid for Mobile Portrait, Mobile Landscape, Tablet (md) & Desktop (lg) -->
+        <main class="flex-1 flex flex-col md:flex-row items-center justify-center p-2.5 sm:p-4 lg:p-5 gap-2.5 sm:gap-4 max-w-7xl mx-auto w-full relative overflow-y-auto md:overflow-hidden">
 
             <!-- LEFT SIDEBAR: "Cara Bermain" (How to Play) + Active Letter Card -->
-            <aside class="w-full lg:w-72 flex flex-col gap-3 order-2 lg:order-1">
+            <aside class="w-full md:w-64 lg:w-72 flex flex-col gap-2.5 sm:gap-3 order-2 md:order-1 shrink-0">
 
                 <!-- Active Letter Info & Prev/Next Controls -->
-                <div class="bg-[#FFFDF7] p-4 rounded-3xl shadow-lg border-4 border-[#E8C587] flex flex-row lg:flex-col items-center justify-between gap-3">
-                    <div class="flex items-center lg:flex-col gap-3 lg:gap-1 text-left lg:text-center">
-                        <span id="letter-index-badge" class="bg-[#D96B27] text-white text-xs font-extrabold px-3 py-1 rounded-full border border-[#5C3A21]">No. 1</span>
+                <div class="bg-[#FFFDF7] p-3 sm:p-4 rounded-3xl shadow-lg border-4 border-[#E8C587] flex flex-row md:flex-col items-center justify-between gap-2 sm:gap-3">
+                    <div class="flex items-center md:flex-col gap-2.5 md:gap-1 text-left md:text-center">
+                        <span id="letter-index-badge" class="bg-[#D96B27] text-white text-xs font-extrabold px-2.5 sm:px-3 py-1 rounded-full border border-[#5C3A21]">No. 1</span>
                         <div>
-                            <h3 id="letter-name" class="font-storybook text-2xl sm:text-3xl font-extrabold text-[#5C3A21] leading-none mt-1">Alif</h3>
+                            <h3 id="letter-name" class="font-storybook text-xl sm:text-3xl font-extrabold text-[#5C3A21] leading-none mt-0.5">Alif</h3>
                             <p id="letter-translit" class="text-[#8C5327] font-bold text-xs sm:text-sm mt-0.5">(a / vokal panjang)</p>
                         </div>
                     </div>
 
-                    <div class="flex gap-2 w-auto lg:w-full">
-                        <button id="btn-prev" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2.5 px-3 rounded-2xl font-bold shadow border-2 border-[#5C3A21] flex items-center justify-center gap-1 transition transform active:scale-95 cursor-pointer text-sm">
+                    <div class="flex gap-2 w-auto md:w-full">
+                        <button id="btn-prev" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2.5 px-3 sm:px-3.5 rounded-2xl font-bold shadow border-2 border-[#5C3A21] flex items-center justify-center gap-1 transition transform active:scale-95 cursor-pointer text-xs sm:text-sm">
                             <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                            <span class="hidden sm:inline">Sebelum</span>
+                            <span>Sebelum</span>
                         </button>
-                        <button id="btn-next" class="flex-1 bg-[#4D8B68] hover:bg-[#3B6E51] text-white py-2.5 px-3 rounded-2xl font-bold shadow border-2 border-[#5C3A21] flex items-center justify-center gap-1 transition transform active:scale-95 cursor-pointer text-sm">
-                            <span class="hidden sm:inline">Seterusnya</span>
+                        <button id="btn-next" class="flex-1 bg-[#4D8B68] hover:bg-[#3B6E51] text-white py-2.5 px-3 sm:px-3.5 rounded-2xl font-bold shadow border-2 border-[#5C3A21] flex items-center justify-center gap-1 transition transform active:scale-95 cursor-pointer text-xs sm:text-sm">
+                            <span>Seterus</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- 3. SIDE INSTRUCTION PANEL ("Cara Bermain") -->
-                <div id="instruction-panel" class="hidden lg:flex flex-col bg-[#FFFDF7] p-4 rounded-3xl shadow-lg border-4 border-[#5C3A21] relative">
-                    <div class="flex items-center justify-between mb-2.5 pb-2 border-b-2 border-dashed border-[#E8C587]">
+                <!-- 3. SIDE INSTRUCTION PANEL ("Cara Bermain" - Visible on Tablet md+ & Desktop lg+) -->
+                <div id="instruction-panel" class="hidden md:flex flex-col bg-[#FFFDF7] p-3.5 lg:p-4 rounded-3xl shadow-lg border-4 border-[#5C3A21] relative overflow-y-auto max-h-[44dvh] lg:max-h-none">
+                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b-2 border-dashed border-[#E8C587]">
                         <div class="flex items-center gap-2">
-                            <span class="text-xl">📖</span>
-                            <h4 class="font-storybook text-lg font-extrabold text-[#5C3A21]">Cara Bermain</h4>
+                            <span class="text-lg">📖</span>
+                            <h4 class="font-storybook text-base lg:text-lg font-extrabold text-[#5C3A21]">Cara Bermain</h4>
                         </div>
-                        <span class="text-xs font-bold bg-amber-200 text-[#5C3A21] px-2 py-0.5 rounded-full">Panduan</span>
+                        <span class="text-[11px] font-bold bg-amber-200 text-[#5C3A21] px-2 py-0.5 rounded-full">Panduan</span>
                     </div>
 
-                    <ul class="space-y-2.5 text-xs sm:text-sm">
-                        <li class="flex items-start gap-2.5 bg-rose-50 p-2 rounded-2xl border border-rose-200">
-                            <span class="text-lg leading-none mt-0.5">🎨</span>
+                    <ul class="space-y-2 text-xs">
+                        <li class="flex items-start gap-2 bg-rose-50 p-2 rounded-2xl border border-rose-200">
+                            <span class="text-base leading-none mt-0.5">🎨</span>
                             <div>
                                 <p class="font-extrabold text-[#5C3A21]">1. Pilih Warna</p>
-                                <p class="text-[#7A5234] text-xs">Pilih warna krayon atau pelangi kegemaranmu.</p>
+                                <p class="text-[#7A5234] text-[11px]">Pilih warna krayon atau pelangi kegemaranmu.</p>
                             </div>
                         </li>
-                        <li class="flex items-start gap-2.5 bg-amber-50 p-2 rounded-2xl border border-amber-200">
-                            <span class="text-lg leading-none mt-0.5">👆</span>
+                        <li class="flex items-start gap-2 bg-amber-50 p-2 rounded-2xl border border-amber-200">
+                            <span class="text-base leading-none mt-0.5">👆</span>
                             <div>
                                 <p class="font-extrabold text-[#5C3A21]">2. Ikut Garisan</p>
-                                <p class="text-[#7A5234] text-xs">Tekan & gerakkan jari mengikut bentuk huruf dari kanan ke kiri.</p>
+                                <p class="text-[#7A5234] text-[11px]">Gerakkan jari mengikut bentuk huruf dari kanan ke kiri.</p>
                             </div>
                         </li>
-                        <li class="flex items-start gap-2.5 bg-sky-50 p-2 rounded-2xl border border-sky-200">
-                            <span class="text-lg leading-none mt-0.5">🔊</span>
+                        <li class="flex items-start gap-2 bg-sky-50 p-2 rounded-2xl border border-sky-200">
+                            <span class="text-base leading-none mt-0.5">🔊</span>
                             <div>
                                 <p class="font-extrabold text-[#5C3A21]">3. Dengar Bunyi</p>
-                                <p class="text-[#7A5234] text-xs">Tekan butang <b>Bunyi</b> untuk dengar sebutan huruf Arab.</p>
+                                <p class="text-[#7A5234] text-[11px]">Tekan butang <b>Bunyi</b> untuk dengar sebutan huruf Arab.</p>
                             </div>
                         </li>
-                        <li class="flex items-start gap-2.5 bg-emerald-50 p-2 rounded-2xl border border-emerald-200">
-                            <span class="text-lg leading-none mt-0.5">⭐</span>
+                        <li class="flex items-start gap-2 bg-emerald-50 p-2 rounded-2xl border border-emerald-200">
+                            <span class="text-base leading-none mt-0.5">⭐</span>
                             <div>
                                 <p class="font-extrabold text-[#5C3A21]">4. Kumpul Bintang</p>
-                                <p class="text-[#7A5234] text-xs">Penuhkan huruf sehingga 85% untuk sorakan <b>"Yeayy!"</b></p>
+                                <p class="text-[#7A5234] text-[11px]">Penuhkan huruf ~82% untuk sorakan <b>"Yeayy!"</b></p>
                             </div>
                         </li>
                     </ul>
                 </div>
             </aside>
 
-            <!-- CENTER: Tracing Canvas Area -->
-            <div class="relative bg-[#FFFDF7] rounded-3xl shadow-2xl p-3 sm:p-5 border-4 border-[#5C3A21] flex flex-col items-center justify-center w-full max-w-[460px] aspect-square order-1 lg:order-2">
+            <!-- CENTER: Responsive Tracing Canvas Area -->
+            <div class="relative bg-[#FFFDF7] rounded-3xl shadow-2xl p-2.5 sm:p-4 lg:p-5 border-4 border-[#5C3A21] flex flex-col items-center justify-center w-full max-w-[min(92vw,440px)] md:max-w-[min(52vw,460px)] lg:max-w-[460px] aspect-square order-1 md:order-2 shrink-0">
                 <!-- Top Canvas Badges: Direction Hint & Progress Bar -->
-                <div class="w-full flex items-center justify-between mb-2 px-1">
-                    <span class="text-xs font-extrabold text-[#8C5327] bg-amber-100 px-2.5 py-1 rounded-full border border-amber-300 flex items-center gap-1">
-                        <span>⬅️</span> Tulis dari Kanan ke Kiri
+                <div class="w-full flex items-center justify-between mb-1.5 sm:mb-2 px-1">
+                    <span class="text-[11px] sm:text-xs font-extrabold text-[#8C5327] bg-amber-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-amber-300 flex items-center gap-1">
+                        <span>⬅️</span> Kanan ke Kiri
                     </span>
                     <div class="flex items-center gap-1.5">
-                        <div class="w-20 sm:w-24 h-3 bg-amber-100 rounded-full overflow-hidden border border-[#5C3A21]">
+                        <div class="w-16 sm:w-24 h-2.5 sm:h-3 bg-amber-100 rounded-full overflow-hidden border border-[#5C3A21]">
                             <div id="trace-progress-bar" class="h-full bg-gradient-to-r from-[#34B38A] to-[#10B981] transition-all duration-150" style="width: 0%"></div>
                         </div>
-                        <span id="trace-percent-text" class="text-xs font-extrabold text-[#5C3A21] w-9 text-right">0%</span>
+                        <span id="trace-percent-text" class="text-[11px] sm:text-xs font-extrabold text-[#5C3A21] w-8 sm:w-9 text-right">0%</span>
                     </div>
                 </div>
 
@@ -531,40 +560,72 @@
 
                     <!-- Initial Animated Hand Guide Overlay (fades out once user touches canvas) -->
                     <div id="start-hint-hand" class="absolute pointer-events-none flex flex-col items-center justify-center animate-hand-hint z-10">
-                        <span class="text-4xl drop-shadow">👆</span>
-                        <span class="text-[11px] font-extrabold bg-[#5C3A21] text-white px-2 py-0.5 rounded-full shadow">Lakar di sini</span>
+                        <span class="text-3xl sm:text-4xl drop-shadow">👆</span>
+                        <span class="text-[10px] sm:text-[11px] font-extrabold bg-[#5C3A21] text-white px-2 py-0.5 rounded-full shadow">Lakar di sini</span>
                     </div>
 
                     <!-- Moving Finger/Brush Cursor during active tracing -->
-                    <div id="cursor-icon" class="absolute pointer-events-none text-4xl transition-transform duration-75 transform -translate-x-1/2 -translate-y-1/2 opacity-0 z-20 drop-shadow-md">🖌️</div>
+                    <div id="cursor-icon" class="absolute pointer-events-none text-3xl sm:text-4xl transition-transform duration-75 transform -translate-x-1/2 -translate-y-1/2 opacity-0 z-20 drop-shadow-md">🖌️</div>
                 </div>
 
                 <!-- Bottom Canvas Action Button: Reset/Padam -->
-                <div class="w-full flex items-center justify-between mt-2.5 px-1">
-                    <span class="text-xs font-bold text-[#8C5327] sm:hidden" id="mobile-progress-label">Huruf 1 / 29</span>
-                    <span class="text-xs font-bold text-[#8C5327] hidden sm:inline">Warnakan seluruh bentuk huruf & titiknya!</span>
-                    <button id="btn-reset" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2 rounded-2xl shadow border-2 border-[#5C3A21] transition transform active:scale-95 cursor-pointer flex items-center gap-1.5 font-bold text-xs sm:text-sm" title="Padam & Ulangi">
-                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                <div class="w-full flex items-center justify-between mt-2 px-1">
+                    <span class="text-xs font-bold text-[#8C5327] md:hidden" id="mobile-progress-label">Huruf 1 / 29</span>
+                    <span class="text-xs font-bold text-[#8C5327] hidden md:inline">Warnakan seluruh bentuk huruf & titiknya!</span>
+                    <button id="btn-reset" class="bg-rose-500 hover:bg-rose-600 text-white px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl shadow border-2 border-[#5C3A21] transition transform active:scale-95 cursor-pointer flex items-center gap-1.5 font-bold text-xs sm:text-sm" title="Padam & Ulangi">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                         <span>Ulangi</span>
                     </button>
                 </div>
             </div>
 
             <!-- RIGHT SIDEBAR: Brush Color Palette -->
-            <div class="flex flex-row lg:flex-col items-center justify-center bg-[#FFFDF7] p-3 sm:p-4 rounded-3xl shadow-lg border-4 border-[#E8C587] gap-2.5 w-full lg:w-auto order-3">
-                <span class="text-xs font-extrabold text-[#5C3A21] uppercase tracking-wider hidden lg:block mb-1">Warna</span>
-                <div class="flex lg:flex-col gap-2 sm:gap-2.5 overflow-x-auto py-1 px-1">
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rose-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 ring-4 ring-amber-400" data-color="#f43f5e" title="Merah"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-orange-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95" data-color="#f97316" title="Oren"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-400 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95" data-color="#f59e0b" title="Kuning"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95" data-color="#10b981" title="Hijau"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-sky-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95" data-color="#0ea5e9" title="Biru"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95" data-color="#a855f7" title="Ungu"></button>
-                    <button class="color-btn w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-400 to-sky-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 flex items-center justify-center text-white font-bold text-xs" data-color="rainbow" title="Warna Pelangi">🌈</button>
+            <div class="flex flex-row md:flex-col items-center justify-center bg-[#FFFDF7] p-2.5 sm:p-3.5 rounded-3xl shadow-lg border-4 border-[#E8C587] gap-2 w-full md:w-auto order-3 shrink-0">
+                <span class="text-[11px] font-extrabold text-[#5C3A21] uppercase tracking-wider hidden md:block mb-0.5">Warna</span>
+                <div class="flex md:flex-col gap-2 sm:gap-2.5 overflow-x-auto py-0.5 px-1 justify-center w-full">
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-rose-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 ring-4 ring-amber-400 shrink-0" data-color="#f43f5e" title="Merah"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-orange-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 shrink-0" data-color="#f97316" title="Oren"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-400 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 shrink-0" data-color="#f59e0b" title="Kuning"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-emerald-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 shrink-0" data-color="#10b981" title="Hijau"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-sky-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 shrink-0" data-color="#0ea5e9" title="Biru"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-purple-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 shrink-0" data-color="#a855f7" title="Ungu"></button>
+                    <button class="color-btn w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-rose-500 via-amber-400 to-sky-500 shadow-md hover:scale-110 transition cursor-pointer border-2 border-[#5C3A21] active:scale-95 flex items-center justify-center text-white font-bold text-xs shrink-0" data-color="rainbow" title="Warna Pelangi">🌈</button>
                 </div>
             </div>
 
         </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- iOS / MANUAL PWA INSTALL GUIDE MODAL (For Safari iPhone & iPad)       -->
+    <!-- ===================================================================== -->
+    <div id="modal-ios-install" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#FFFDF7] rounded-3xl shadow-2xl w-full max-w-sm border-4 border-[#5C3A21] p-5 animate-pop text-center">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-[#34B38A] to-[#269370] border-3 border-[#5C3A21] flex items-center justify-center shadow-md">
+                <span class="arabic-font text-4xl font-bold text-white">ا</span>
+            </div>
+            <h3 class="font-storybook text-xl font-extrabold text-[#5C3A21] mb-1">Pasang ke Skrin Utama</h3>
+            <p class="text-xs text-[#7A5234] mb-4">Simpan permainan ini sebagai aplikasi di telefon iPhone / iPad anda:</p>
+
+            <div class="space-y-2.5 text-left text-xs bg-amber-50 p-3.5 rounded-2xl border-2 border-amber-200 mb-4">
+                <p class="flex items-center gap-2 font-bold text-[#5C3A21]">
+                    <span class="bg-[#D96B27] text-white w-5 h-5 rounded-full inline-flex items-center justify-center shrink-0">1</span>
+                    <span>Tekan ikon <b>Share (Kongsi)</b> <span class="inline-block bg-white px-1.5 py-0.5 rounded border border-gray-300">⬆️</span> di bar bawah Safari.</span>
+                </p>
+                <p class="flex items-center gap-2 font-bold text-[#5C3A21]">
+                    <span class="bg-[#34B38A] text-white w-5 h-5 rounded-full inline-flex items-center justify-center shrink-0">2</span>
+                    <span>Skrol ke bawah & pilih <b>"Add to Home Screen"</b> <span class="inline-block bg-white px-1.5 py-0.5 rounded border border-gray-300">➕</span>.</span>
+                </p>
+                <p class="flex items-center gap-2 font-bold text-[#5C3A21]">
+                    <span class="bg-sky-500 text-white w-5 h-5 rounded-full inline-flex items-center justify-center shrink-0">3</span>
+                    <span>Tekan <b>"Add"</b> di penjuru atas kanan. Siap!</span>
+                </p>
+            </div>
+
+            <button id="btn-close-ios-install" class="w-full bg-[#34B38A] text-white py-2.5 rounded-2xl font-extrabold border-2 border-[#5C3A21] shadow cursor-pointer">
+                Baik, Faham! 👍
+            </button>
+        </div>
     </div>
 
     <!-- ===================================================================== -->
@@ -680,6 +741,141 @@
     <!-- JAVASCRIPT: AUDIO SYNTHESIS, CANVAS CLIPPING TRACING & GAME STATE     -->
     <!-- ===================================================================== -->
     <script>
+        // =================================================================
+        // PWA DYNAMIC MANIFEST, APP ICON & SERVICE WORKER SETUP
+        // =================================================================
+        (function initPWA() {
+            // 1. Generate high-res PNG icon via Canvas for Manifest & Apple Touch Icon
+            const iconCanvas = document.createElement('canvas');
+            iconCanvas.width = 512;
+            iconCanvas.height = 512;
+            const ictx = iconCanvas.getContext('2d');
+
+            // Warm storybook gradient background
+            const grad = ictx.createLinearGradient(0, 0, 512, 512);
+            grad.addColorStop(0, '#FDE68A');
+            grad.addColorStop(1, '#F59E0B');
+            ictx.fillStyle = grad;
+            ictx.fillRect(0, 0, 512, 512);
+
+            // Inner rounded badge
+            ictx.fillStyle = '#34B38A';
+            ictx.beginPath();
+            ictx.roundRect(44, 44, 424, 424, 96);
+            ictx.fill();
+            ictx.lineWidth = 14;
+            ictx.strokeStyle = '#5C3A21';
+            ictx.stroke();
+
+            // Draw Arabic Alif & Ba emblem
+            ictx.fillStyle = '#FFFDF7';
+            ictx.font = 'bold 260px serif';
+            ictx.textAlign = 'center';
+            ictx.textBaseline = 'middle';
+            ictx.fillText('ا', 256, 268);
+
+            const iconDataUrl = iconCanvas.toDataURL('image/png');
+            const appleIconLink = document.getElementById('apple-touch-icon-link');
+            if (appleIconLink) appleIconLink.href = iconDataUrl;
+
+            // 2. Create Dynamic Web App Manifest Blob
+            const manifest = {
+                name: "Mengenal Huruf Hijaiyah",
+                short_name: "Huruf Hijaiyah",
+                description: "Game edukasi interaktif melakar 29 huruf Hijaiyah untuk kanak-kanak.",
+                start_url: window.location.href,
+                display: "standalone",
+                orientation: "any",
+                background_color: "#FFF6D6",
+                theme_color: "#FDE68A",
+                icons: [
+                    {
+                        src: iconDataUrl,
+                        sizes: "512x512",
+                        type: "image/png",
+                        purpose: "any maskable"
+                    }
+                ]
+            };
+
+            try {
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+                const manifestUrl = URL.createObjectURL(manifestBlob);
+                document.getElementById('pwa-manifest-link').setAttribute('href', manifestUrl);
+            } catch (e) {}
+
+            // 3. Register lightweight inline Service Worker for PWA installability
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = `
+                    self.addEventListener('install', (e) => self.skipWaiting());
+                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                    });
+                `;
+                try {
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl).catch(() => {});
+                } catch (e) {}
+            }
+        })();
+
+        // PWA Install Prompt Handling (Android/Chrome + iOS Safari detection)
+        let deferredInstallPrompt = null;
+        const btnInstallSplash = document.getElementById('btn-install-splash');
+        const btnInstallHeader = document.getElementById('btn-install-header');
+        const modalIosInstall = document.getElementById('modal-ios-install');
+
+        const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+        const isInStandaloneMode = ('standalone' in window.navigator && window.navigator.standalone) || window.matchMedia('(display-mode: standalone)').matches;
+
+        function showInstallButtons() {
+            if (isInStandaloneMode) return;
+            btnInstallSplash.classList.remove('hidden');
+            btnInstallSplash.classList.add('inline-flex');
+            btnInstallHeader.classList.remove('hidden');
+            btnInstallHeader.classList.add('flex');
+        }
+
+        // Show install button on iOS Safari automatically when not yet installed
+        if (isIos && !isInStandaloneMode) {
+            showInstallButtons();
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            showInstallButtons();
+        });
+
+        async function triggerPwaInstall() {
+            playClickSound();
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                const { outcome } = await deferredInstallPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    btnInstallSplash.classList.add('hidden');
+                    btnInstallHeader.classList.add('hidden');
+                }
+                deferredInstallPrompt = null;
+            } else if (isIos) {
+                modalIosInstall.classList.remove('hidden');
+            }
+        }
+
+        btnInstallSplash.addEventListener('click', triggerPwaInstall);
+        btnInstallHeader.addEventListener('click', triggerPwaInstall);
+        document.getElementById('btn-close-ios-install').addEventListener('click', () => {
+            modalIosInstall.classList.add('hidden');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            btnInstallSplash.classList.add('hidden');
+            btnInstallHeader.classList.add('hidden');
+            deferredInstallPrompt = null;
+        });
+
         // Complete 29 Hijaiyah Letters Dataset
         const hijaiyahData = [
             { id: 1, arabic: "ا", name: "Alif", translit: "a / vokal panjang" },
@@ -837,324 +1033,22 @@
         function resizeCanvas() {
             const container = canvas.parentElement;
             if (!container || container.clientWidth === 0) return;
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            const size = Math.min(container.clientWidth, container.clientHeight);
+            canvas.width = size;
+            canvas.height = size;
 
-            paintCanvas.width = canvas.width;
-            paintCanvas.height = canvas.height;
+            paintCanvas.width = size;
+            paintCanvas.height = size;
 
-            maskCanvas.width = canvas.width;
-            maskCanvas.height = canvas.height;
+            maskCanvas.width = size;
+            maskCanvas.height = size;
 
             resetCurrentCanvas();
         }
         window.addEventListener('resize', resizeCanvas);
-
-        function resetCurrentCanvas() {
-            hasCompletedCurrent = false;
-            strokeCounter = 0;
-            updateProgressUI(0);
-
-            const letter = hijaiyahData[currentIndex];
-            const fontSize = getFontSize();
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2 + fontSize * 0.08;
-
-            // 1. Prepare solid letter mask on maskCanvas
-            maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
-            maskCtx.font = `bold ${fontSize}px 'Noto Naskh Arabic', serif`;
-            maskCtx.textAlign = 'center';
-            maskCtx.textBaseline = 'middle';
-            maskCtx.fillStyle = '#000000';
-            maskCtx.fillText(letter.arabic, centerX, centerY);
-
-            // 2. Clear user paint layer
-            paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-
-            // 3. Render composite view on visible canvas
-            renderCompositeCanvas();
-
-            // Show helper hand hint
-            document.getElementById('start-hint-hand').style.display = 'flex';
-        }
-
-        function renderCompositeCanvas() {
-            const letter = hijaiyahData[currentIndex];
-            const fontSize = getFontSize();
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2 + fontSize * 0.08;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Base soft cream/grey letter silhouette
-            ctx.save();
-            ctx.font = `bold ${fontSize}px 'Noto Naskh Arabic', serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#E8DFC8';
-            ctx.fillText(letter.arabic, centerX, centerY);
-
-            // Draw clipped user paint strokes inside the letter shape
-            ctx.drawImage(paintCanvas, 0, 0);
-
-            // Dashed guide border on top for clear visibility
-            ctx.strokeStyle = '#B89B72';
-            ctx.lineWidth = 3.5;
-            ctx.setLineDash([10, 8]);
-            ctx.strokeText(letter.arabic, centerX, centerY);
-            ctx.restore();
-        }
-
-        function paintAtSegment(x1, y1, x2, y2) {
-            paintCtx.save();
-            // Clip strictly to the letter shape using maskCanvas
-            paintCtx.globalCompositeOperation = 'source-over';
-            paintCtx.beginPath();
-            paintCtx.moveTo(x1, y1);
-            paintCtx.lineTo(x2, y2);
-
-            if (isRainbow) {
-                rainbowHue = (rainbowHue + 4) % 360;
-                paintCtx.strokeStyle = `hsl(${rainbowHue}, 95%, 52%)`;
-            } else {
-                paintCtx.strokeStyle = currentColor;
-            }
-
-            paintCtx.lineWidth = Math.max(28, canvas.width * 0.085);
-            paintCtx.lineCap = 'round';
-            paintCtx.lineJoin = 'round';
-            paintCtx.stroke();
-
-            // Keep only pixels inside the Hijaiyah letter mask
-            paintCtx.globalCompositeOperation = 'destination-in';
-            paintCtx.drawImage(maskCanvas, 0, 0);
-            paintCtx.restore();
-
-            renderCompositeCanvas();
-        }
-
-        function calculateFillPercentage() {
-            const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
-            const paintData = paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height).data;
-
-            let totalLetterPixels = 0;
-            let paintedLetterPixels = 0;
-
-            // Sample every 4th pixel (step 16 in RGBA array) for super smooth 60 FPS performance
-            for (let i = 3; i < maskData.length; i += 16) {
-                if (maskData[i] > 80) {
-                    totalLetterPixels++;
-                    if (paintData[i] > 80) {
-                        paintedLetterPixels++;
-                    }
-                }
-            }
-
-            if (totalLetterPixels === 0) return 0;
-            return Math.min(100, Math.round((paintedLetterPixels / totalLetterPixels) * 100));
-        }
-
-        function updateProgressUI(percent) {
-            document.getElementById('trace-progress-bar').style.width = `${percent}%`;
-            document.getElementById('trace-percent-text').textContent = `${percent}%`;
-        }
-
-        // -----------------------------------------------------------------
-        // Pointer & Touch Event Handlers
-        // -----------------------------------------------------------------
-        const cursorIcon = document.getElementById('cursor-icon');
-
-        function getPointerPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
-        }
-
-        function handleStart(e) {
-            e.preventDefault();
-            ensureAudioCtx();
-            isDrawing = true;
-            document.getElementById('start-hint-hand').style.display = 'none';
-
-            const pos = getPointerPos(e);
-            lastX = pos.x;
-            lastY = pos.y;
-
-            cursorIcon.style.opacity = '1';
-            cursorIcon.style.left = `${pos.x}px`;
-            cursorIcon.style.top = `${pos.y}px`;
-
-            paintAtSegment(lastX, lastY, pos.x + 0.1, pos.y + 0.1);
-        }
-
-        function handleMove(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const pos = getPointerPos(e);
-
-            cursorIcon.style.left = `${pos.x}px`;
-            cursorIcon.style.top = `${pos.y}px`;
-
-            paintAtSegment(lastX, lastY, pos.x, pos.y);
-            lastX = pos.x;
-            lastY = pos.y;
-
-            strokeCounter++;
-            if (!hasCompletedCurrent && strokeCounter % 6 === 0) {
-                const pct = calculateFillPercentage();
-                updateProgressUI(pct);
-                if (pct >= 82) {
-                    triggerYeayCelebration();
-                }
-            }
-        }
-
-        function handleEnd() {
-            if (!isDrawing) return;
-            isDrawing = false;
-            cursorIcon.style.opacity = '0';
-
-            if (!hasCompletedCurrent) {
-                const pct = calculateFillPercentage();
-                updateProgressUI(pct);
-                if (pct >= 82) {
-                    triggerYeayCelebration();
-                }
-            }
-        }
-
-        canvas.addEventListener('mousedown', handleStart);
-        canvas.addEventListener('mousemove', handleMove);
-        canvas.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('mouseleave', handleEnd);
-
-        canvas.addEventListener('touchstart', handleStart, { passive: false });
-        canvas.addEventListener('touchmove', handleMove, { passive: false });
-        canvas.addEventListener('touchend', handleEnd);
-
-        // -----------------------------------------------------------------
-        // "YEAYY!" Celebration Animation + Confetti + Audio Fanfare
-        // -----------------------------------------------------------------
-        function launchConfettiBurst() {
-            const colors = ['#F43F5E', '#F59E0B', '#10B981', '#0EA5E9', '#A855F7', '#EC4899'];
-            for (let i = 0; i < 65; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'confetti-piece';
-                piece.style.left = `${Math.random() * 100}vw`;
-                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                piece.style.width = `${8 + Math.random() * 10}px`;
-                piece.style.height = `${8 + Math.random() * 10}px`;
-                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-                document.body.appendChild(piece);
-
-                const fallDuration = 1600 + Math.random() * 1600;
-                const horizontalDrift = (Math.random() - 0.5) * 220;
-                const rotation = Math.random() * 720;
-
-                piece.animate([
-                    { transform: 'translate3d(0, 0, 0) rotate(0deg)', opacity: 1 },
-                    { transform: `translate3d(${horizontalDrift}px, 105vh, 0) rotate(${rotation}deg)`, opacity: 0.85 }
-                ], {
-                    duration: fallDuration,
-                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                }).onfinish = () => piece.remove();
-            }
-        }
-
-        function triggerYeayCelebration() {
-            if (hasCompletedCurrent) return;
-            hasCompletedCurrent = true;
-            isDrawing = false;
-            cursorIcon.style.opacity = '0';
-            updateProgressUI(100);
-
-            // Fill entire letter cleanly with chosen vibrant color
-            const letter = hijaiyahData[currentIndex];
-            const fontSize = getFontSize();
-            paintCtx.save();
-            paintCtx.globalCompositeOperation = 'source-over';
-            paintCtx.font = `bold ${fontSize}px 'Noto Naskh Arabic', serif`;
-            paintCtx.textAlign = 'center';
-            paintCtx.textBaseline = 'middle';
-            paintCtx.fillStyle = isRainbow ? '#34B38A' : currentColor;
-            paintCtx.fillText(letter.arabic, paintCanvas.width / 2, paintCanvas.height / 2 + fontSize * 0.08);
-            paintCtx.restore();
-            renderCompositeCanvas();
-
-            // Save star progress
-            completedLetters[currentIndex] = true;
-            localStorage.setItem('hijaiyah_completed_v2', JSON.stringify(completedLetters));
-            updateStarsDisplay();
-
-            // Trigger Confetti, Fanfare Audio, and Arabic Pronunciation
-            launchConfettiBurst();
-            playYeayFanfare();
-            setTimeout(playLetterSound, 550);
-
-            // Show "YEAYY!" Celebration Modal
-            const praises = [
-                "Alhamdulillah, Hebat!",
-                "MasyaAllah, Pandainya!",
-                "Syabas, Luar Biasa!",
-                "Pintar Sekali Anak Soleh!"
-            ];
-            document.getElementById('success-title').textContent = praises[Math.floor(Math.random() * praises.length)];
-            document.getElementById('celebration-letter').textContent = letter.arabic;
-            document.getElementById('celebration-letter').style.color = isRainbow ? '#34B38A' : currentColor;
-            document.getElementById('modal-success').classList.remove('hidden');
-        }
-
-        // -----------------------------------------------------------------
-        // Letter Loading, Audio Pronunciation & Grid Selector
-        // -----------------------------------------------------------------
-        function loadLetter(index) {
-            currentIndex = index;
-            const letter = hijaiyahData[index];
-
-            document.getElementById('letter-index-badge').textContent = `No. ${letter.id}`;
-            document.getElementById('letter-name').textContent = letter.name;
-            document.getElementById('letter-translit').textContent = `(${letter.translit})`;
-            document.getElementById('header-progress').textContent = `Huruf ${letter.id} dari 29`;
-            document.getElementById('mobile-progress-label').textContent = `Huruf ${letter.id} / 29`;
-
-            updateStarsDisplay();
-            resizeCanvas();
-        }
-
-        function playLetterSound() {
-            const letter = hijaiyahData[currentIndex];
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(letter.arabic);
-                utterance.lang = 'ar-SA';
-                utterance.rate = 0.8;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function updateStarsDisplay() {
-            const count = Object.keys(completedLetters).filter(k => completedLetters[k]).length;
-            document.getElementById('total-stars').textContent = count;
-        }
-
-        // Brush Color Picker
-        document.querySelectorAll('.color-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                playClickSound();
-                const color = btn.getAttribute('data-color');
-                if (color === 'rainbow') {
-                    isRainbow = true;
-                } else {
-                    isRainbow = false;
-                    currentColor = color;
-                }
-                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-4', 'ring-amber-400'));
-                btn.classList.add('ring-4', 'ring-amber-400');
-            });
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 200);
+        });
         });
 
         // Buttons Event Listeners
