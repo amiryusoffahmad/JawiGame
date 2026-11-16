@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFF6D6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Huruf Hijaiyah">
     <title>Mengenal Huruf Hijaiyah - Belajar Sambil Bermain</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icon-192.png">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Fredoka & Baloo 2 for playful rounded storybook typography, Noto Naskh Arabic for clear Hijaiyah letters -->
@@ -13,10 +20,22 @@
     <style>
         body {
             font-family: 'Fredoka', sans-serif;
-            touch-action: none;
+            touch-action: auto;
             user-select: none;
             -webkit-user-select: none;
             background-color: #FFF6D6;
+            min-height: 100svh;
+        }
+        #canvas-container {
+            touch-action: none;
+        }
+        @media (max-width: 400px) {
+            header {
+                padding-inline: 0.375rem;
+            }
+            header > div:first-child {
+                gap: 0.375rem;
+            }
         }
         .font-storybook {
             font-family: 'Baloo 2', 'Fredoka', cursive, sans-serif;
@@ -398,19 +417,19 @@
         <header class="bg-white/90 backdrop-blur-md shadow-md px-3 sm:px-6 py-2.5 flex items-center justify-between z-20 border-b-4 border-[#E8C587]">
             <div class="flex items-center gap-2 sm:gap-3">
                 <!-- Home / Muka Utama Button -->
-                <button id="btn-home" class="bg-[#8C5327] hover:bg-[#6E3F1C] text-[#FFFDF7] p-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Muka Utama">
+                <button id="btn-home" class="bg-[#8C5327] hover:bg-[#6E3F1C] text-[#FFFDF7] p-2 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Muka Utama">
                     <i data-lucide="home" class="w-5 h-5"></i>
                     <span class="hidden md:inline text-sm">Utama</span>
                 </button>
 
                 <!-- 29 Letters Grid Menu Button -->
-                <button id="btn-menu" class="bg-[#D96B27] hover:bg-[#BF5819] text-white px-3 py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-2 font-bold cursor-pointer">
+                <button id="btn-menu" class="bg-[#D96B27] hover:bg-[#BF5819] text-white px-2.5 py-2 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-2 font-bold cursor-pointer">
                     <i data-lucide="grid" class="w-5 h-5"></i>
                     <span class="hidden sm:inline text-sm">Pilih Huruf</span>
                 </button>
 
                 <!-- Stars Counter -->
-                <div class="flex items-center gap-1.5 bg-amber-100 px-3 py-1.5 rounded-2xl border-2 border-amber-400 shadow-inner">
+                <div class="flex items-center gap-1.5 bg-amber-100 px-2 py-1.5 rounded-2xl border-2 border-amber-400 shadow-inner">
                     <i data-lucide="star" class="w-5 h-5 text-amber-500 fill-amber-400 animate-pulse"></i>
                     <span id="total-stars" class="font-extrabold text-[#5C3A21] text-base sm:text-lg">0</span>
                     <span class="text-xs text-amber-700 font-bold">/ 29</span>
@@ -432,7 +451,11 @@
                     <span class="text-xs hidden xs:inline">Cara Main</span>
                 </button>
 
-                <button id="btn-sound" class="bg-[#34B38A] hover:bg-[#269370] text-white px-3.5 py-2.5 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Dengar Sebutan Huruf">
+                <button id="btn-install" class="bg-[#4D8B68] hover:bg-[#3B6E51] text-white p-2 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center justify-center cursor-pointer" title="Pasang aplikasi" aria-label="Pasang aplikasi">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </button>
+
+                <button id="btn-sound" class="bg-[#34B38A] hover:bg-[#269370] text-white px-2.5 py-2 rounded-2xl shadow-md border-2 border-[#5C3A21] transform active:scale-95 transition flex items-center gap-1.5 font-bold cursor-pointer" title="Dengar Sebutan Huruf">
                     <i data-lucide="volume-2" class="w-5 h-5"></i>
                     <span class="hidden sm:inline text-sm">Bunyi</span>
                 </button>
@@ -811,6 +834,34 @@
             requestAnimationFrame(() => {
                 splashScreen.classList.remove('opacity-0', 'pointer-events-none');
             });
+        });
+
+        // PWA installation prompt, with browser-specific guidance as a fallback.
+        let deferredInstallPrompt = null;
+        const installButton = document.getElementById('btn-install');
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isStandalone) installButton.classList.add('hidden');
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredInstallPrompt = event;
+        });
+
+        installButton.addEventListener('click', async () => {
+            playClickSound();
+            if (!deferredInstallPrompt) {
+                alert('Untuk memasang aplikasi, pilih "Tambah ke Skrin Utama" daripada menu kongsi pelayar pada iPhone atau menu pelayar pada Android.');
+                return;
+            }
+
+            deferredInstallPrompt.prompt();
+            await deferredInstallPrompt.userChoice;
+            deferredInstallPrompt = null;
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installButton.classList.add('hidden');
+            deferredInstallPrompt = null;
         });
 
         // Mobile "Cara Bermain" Modal Controls
@@ -1240,6 +1291,10 @@
             updateStarsDisplay();
             loadLetter(0);
         };
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        }
     </script>
 </body>
 </html>
