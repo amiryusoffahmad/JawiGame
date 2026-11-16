@@ -526,7 +526,7 @@
                             <span class="text-lg leading-none mt-0.5">⭐</span>
                             <div>
                                 <p class="font-extrabold text-[#5C3A21]">4. Kumpul Bintang</p>
-                                <p class="text-[#7A5234] text-xs">Warnakan seluruh huruf hingga 100% untuk sorakan <b>"Yeayy!"</b></p>
+                                <p class="text-[#7A5234] text-xs">Warnakan sekurang-kurangnya 90% huruf untuk sorakan <b>"Yeayy!"</b></p>
                             </div>
                         </li>
                     </ul>
@@ -630,7 +630,7 @@
                     <span class="text-xl">⭐</span>
                     <div>
                         <p class="font-extrabold text-[#5C3A21]">4. Kumpul Bintang</p>
-                        <p class="text-[#7A5234] text-xs">Warnakan seluruh huruf hingga 100% untuk dapat sorakan <b>"Yeayy!"</b></p>
+                        <p class="text-[#7A5234] text-xs">Warnakan sekurang-kurangnya 90% huruf untuk dapat sorakan <b>"Yeayy!"</b></p>
                     </div>
                 </li>
             </ul>
@@ -1058,7 +1058,7 @@
             if (!hasCompletedCurrent && strokeCounter % 6 === 0) {
                 const pct = calculateFillPercentage();
                 updateProgressUI(pct);
-                if (pct >= 100) {
+                if (pct >= 90) {
                     triggerYeayCelebration();
                 }
             }
@@ -1072,7 +1072,7 @@
             if (!hasCompletedCurrent) {
                 const pct = calculateFillPercentage();
                 updateProgressUI(pct);
-                if (pct >= 100) {
+                if (pct >= 90) {
                     triggerYeayCelebration();
                 }
             }
