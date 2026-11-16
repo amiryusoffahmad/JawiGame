@@ -942,9 +942,9 @@
 
             // Sample every 4th pixel (step 16 in RGBA array) for super smooth 60 FPS performance
             for (let i = 3; i < maskData.length; i += 16) {
-                if (maskData[i] > 80) {
+                if (maskData[i] > 90) {
                     totalLetterPixels++;
-                    if (paintData[i] > 80) {
+                    if (paintData[i] > 90) {
                         paintedLetterPixels++;
                     }
                 }
